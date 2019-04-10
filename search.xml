@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search>
+  <entry>
+    <title><![CDATA[Hello World]]></title>
+    <url>%2F2019%2F04%2F10%2Fhello-world%2F</url>
+    <content type="text"></content>
+      <tags>
+        <tag>Java</tag>
+        <tag>test</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[Java路上的小坑（一） 取余]]></title>
+    <url>%2F2019%2F04%2F10%2FJava%E8%B7%AF%E4%B8%8A%E7%9A%84%E5%B0%8F%E5%9D%91%EF%BC%88%E4%B8%80%EF%BC%89-%E5%8F%96%E4%BD%99%2F</url>
+    <content type="text"><![CDATA[写在前面：最近要准备期末考试没时间准备太多分享的内容但是又觉得应该写点什么，就和大家分享一些自己遇到的小细节上的问题吧作为小坑系列 今天要带来的是：取模运算（取余运算） 一、取余？取模？首先区别一下取模运算（Modulo Operation）和取余运算（Complementation ），这两个概念有重叠的部分但又不完全一致。主要的区别在于对 负整数进行除法运算 时操作不同。 例如对于整型数a，b来说，取模运算或者求余运算的方法都是： step1.求整数商： c = a/b;step2.计算模或者余数： r = a - c*b. 但是求模运算和求余运算在第一步不同:取余运算在取c的值时，向 0 方向舍入(fix()函数)；而取模运算在计算c的值时，向负无穷方向舍入(floor()函数)。 例如：计算-7 Mod 4那么：a = -7；b = 4； 第一步：求整数商c，c应该是-1.75，如进行求模运算c = -2（向负无穷方向舍入），求余运算则c = -1（向0方向舍入）；第二步：计算模和余数的公式相同，但因c的值不同，求模时r = 1，求余时r = -3。 归纳：当a和b符号一致时，求模运算和求余运算所得的c的值一致，因此结果一致。当符号不一致时，结果不一样。求模运算结果的符号和b一致，求余运算结果的符号和a一致。 另外各个环境下%运算符的含义不同，比如c/c++，Java 为取余，而python则为取模。所以当取余被除数和除数符号不一致时，Java得出的结果是和左边的符号一致的！ 二、被除数与除数的数据类型取余运算符是“%”，格式是a%b; 大家肯定都知道1%2=1这种运算，但是其实Java的“%”是支持浮点型的。 下面的代码演示了一下int/float/double/String 同类型和不同类型之间相互取余的情况： 12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849505152535455565758596061int a = 1, b = 2;float c = 1.0f, d = 2.0f;double e = 1.0, f = 2.0;String g = "1.0", h = "2.0";/** *符号不一致的情况 */float x1 = -10, y1 = 7;float x2 = 10, y2 = -7;System.out.println(x1 % y1);//-3.0System.out.println(x2 % y2);//3.0/** * 同类型取余 */System.out.println(a % b);//1System.out.println(c % d);//1.0System.out.println(e % f);//1.0System.out.println(g % h);//报错如下//The operator % is undefined for the argument type(s) java.lang.String, java.lang.String/** * int作为被除数 其余类型作为除数 */System.out.println(a % d);//1.0System.out.println(a % f);//1.0System.out.println(a % h);//报错如下//The operator % is undefined for the argument type(s) java.lang.int, java.lang.String/*** float作被除数 其余作为除数*/System.out.println(c % a);//0.0System.out.println(c % f);//1.0System.out.println(c % h);//报错如下//The operator % is undefined for the argument type(s) float, String/*** bouble作为被除数 其余作为除数*/System.out.println(e % a);//0.0System.out.println(e % c);//0.0System.out.println(e % h);//报错如下//The operator % is undefined for the argument type(s) double, String/** * 字符串作为被除数 其余作为除数 */System.out.println(h% a);//报错如下//The operator % is undefined for the argument type(s) String, intSystem.out.println(h % c);//报错如下//The operator % is undefined for the argument type(s) String, floatSystem.out.println(h % e);//报错如下//The operator % is undefined for the argument type(s) String, double/** *怎么知道取余后的类型呢？ */int j=e%c;//报错Type mismatch: cannot convert from double to intint i=c%a;//报错Type mismatch: cannot convert from float to int 所以，可以得出以下结论： int float double之间可以相互取余，int和int取余得到int，包含 双精度浮点（double）的取余结果是双精度浮点（double） ，单精度浮点和整型取余时结果是单精度浮点（float）； 字符串不能参与取余（emmm，只是好奇，理论上本来就应该是不行的）； Java两个数取余，结果和 左边的数（被除数）符号一致。 另外：用过C的朋友应该知道，C语言里面的%是整型取余符号，所以是不能对浮点型取余的，如果有需要，应该调用库函数fmodf、fmod或fmodl： fmodf用于float型变量操作； fmod用于double型变量操作； fmodl用于long double型变量操作。 三、小扩展取余运算也可以运用到一些有趣的场景，比如在我国古代算书《孙子算经》中有这样一个问题： “今有物不知其数，三三数之剩二，五五数之剩三，七七数之剩二，问物几何？” 意思是：一个数除以3余2，除以5余3，除以7余2.求适合这个条件的最小数。 这个问题称为“孙子问题”关于孙子问题的一般解法，国际上称为”中国剩余定理“。 有兴趣的朋友可以拓展一下。]]></content>
+      <tags>
+        <tag>Java</tag>
+        <tag>小坑系列</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[test_my_site]]></title>
+    <url>%2F2019%2F03%2F29%2Ftest-my-site%2F</url>
+    <content type="text"><![CDATA[里面有惊吓 第一篇博客万事开头难很早很早以前就想弄一个个人博客，但是一直拖着其实一个好的个人博客，是可以更好的展示自己对找工作也很有帮助s而且，可以反向逼自己一手，多写blog学会将自己的所学产出是一种能力]]></content>
+  </entry>
+</search>
